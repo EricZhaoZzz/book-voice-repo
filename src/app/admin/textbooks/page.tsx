@@ -9,9 +9,9 @@ export default async function TextbooksPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Textbooks</h1>
+        <h1 className="text-2xl font-bold">教材管理</h1>
         <Link href="/admin/textbooks/new">
-          <Button>Add Textbook</Button>
+          <Button>添加教材</Button>
         </Link>
       </div>
 
@@ -19,11 +19,11 @@ export default async function TextbooksPage() {
         <table className="w-full">
           <thead className="border-b bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Grade</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Publisher</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Version</th>
-              <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">名称</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">年级</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">出版社</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">版本</th>
+              <th className="px-4 py-3 text-right text-sm font-medium">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -36,12 +36,12 @@ export default async function TextbooksPage() {
                 <td className="px-4 py-3 text-right text-sm">
                   <Link href={`/admin/textbooks/${textbook.id}/units`}>
                     <Button variant="ghost" size="sm">
-                      Units
+                      单元
                     </Button>
                   </Link>
                   <Link href={`/admin/textbooks/${textbook.id}/edit`}>
                     <Button variant="ghost" size="sm">
-                      Edit
+                      编辑
                     </Button>
                   </Link>
                   <DeleteButton id={textbook.id} action={deleteTextbook} />
@@ -51,7 +51,7 @@ export default async function TextbooksPage() {
             {textbooks.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                  No textbooks found
+                  暂无教材
                 </td>
               </tr>
             )}

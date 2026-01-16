@@ -18,12 +18,12 @@ export function DeleteButton({
       size="sm"
       disabled={isPending}
       onClick={() => {
-        if (confirm("Are you sure you want to delete this item?")) {
+        if (confirm("确定要删除此项吗？")) {
           startTransition(() => action(id));
         }
       }}
     >
-      {isPending ? "..." : "Delete"}
+      {isPending ? "..." : "删除"}
     </Button>
   );
 }

@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/textbooks", label: "Textbooks" },
+  { href: "/admin", label: "仪表盘" },
+  { href: "/admin/textbooks", label: "教材管理" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 border-r bg-gray-50 p-4">
-        <h1 className="mb-6 text-xl font-bold">Admin</h1>
+        <h1 className="mb-6 text-xl font-bold">管理后台</h1>
         <nav className="space-y-1">
           {navItems.map((item) => (
             <Link

@@ -19,8 +19,8 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="mt-2 text-gray-600">Welcome to the admin dashboard.</p>
+      <h1 className="text-2xl font-bold">仪表盘</h1>
+      <p className="mt-2 text-gray-600">欢迎来到管理后台。</p>
     </div>
   );
 }

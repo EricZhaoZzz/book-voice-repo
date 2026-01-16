@@ -40,31 +40,31 @@ export function TextbookForm({ textbook }: { textbook?: Textbook }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">名称</Label>
         <Input id="name" name="name" defaultValue={textbook?.name} required />
       </div>
       <div>
-        <Label htmlFor="grade">Grade</Label>
+        <Label htmlFor="grade">年级</Label>
         <Input id="grade" name="grade" defaultValue={textbook?.grade} required />
       </div>
       <div>
-        <Label htmlFor="publisher">Publisher</Label>
+        <Label htmlFor="publisher">出版社</Label>
         <Input id="publisher" name="publisher" defaultValue={textbook?.publisher} required />
       </div>
       <div>
-        <Label htmlFor="version">Version</Label>
+        <Label htmlFor="version">版本</Label>
         <Input id="version" name="version" defaultValue={textbook?.version} required />
       </div>
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">描述</Label>
         <Input id="description" name="description" defaultValue={textbook?.description || ""} />
       </div>
       <div className="flex items-center gap-2">
         <input type="checkbox" id="is_free" name="is_free" defaultChecked={textbook?.is_free} />
-        <Label htmlFor="is_free">Free</Label>
+        <Label htmlFor="is_free">免费</Label>
       </div>
       <div>
-        <Label htmlFor="free_units_count">Free Units Count</Label>
+        <Label htmlFor="free_units_count">免费单元数</Label>
         <Input
           id="free_units_count"
           name="free_units_count"
@@ -74,10 +74,10 @@ export function TextbookForm({ textbook }: { textbook?: Textbook }) {
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : textbook ? "Update" : "Create"}
+          {isPending ? "保存中..." : textbook ? "更新" : "创建"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          取消
         </Button>
       </div>
     </form>

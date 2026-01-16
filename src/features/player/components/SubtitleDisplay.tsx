@@ -49,11 +49,7 @@ export function SubtitleDisplay({
   };
 
   if (!subtitleData || subtitleData.subtitles.length === 0) {
-    return (
-      <div className={cn("p-4 text-center text-muted-foreground", className)}>
-        No subtitles available
-      </div>
-    );
+    return <div className={cn("p-4 text-center text-muted-foreground", className)}>暂无字幕</div>;
   }
 
   return (
