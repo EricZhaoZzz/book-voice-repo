@@ -6,11 +6,12 @@ Quick access to English listening resources via QR code scanning for primary and
 
 ### Frontend
 
-- **Next.js 14+** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Shadcn/ui** - UI components
-- **TanStack Query** - Server state management
+- **Next.js 16** - React framework with App Router and Turbopack
+- **React 19** - Latest React with improved performance
+- **TypeScript 5** - Type safety
+- **Tailwind CSS 3** - Utility-first CSS framework
+- **Shadcn/ui** - Accessible UI components built with Radix UI
+- **TanStack Query v5** - Server state management
 - **Zustand** - Client state management
 - **React Hook Form + Zod** - Form handling and validation
 - **Howler.js** - Audio playback
@@ -25,16 +26,16 @@ Quick access to English listening resources via QR code scanning for primary and
 
 ### Development Tools
 
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Husky + lint-staged** - Git hooks
+- **ESLint 9** - Code linting with flat config
+- **Prettier 3** - Code formatting
+- **Husky + lint-staged** - Git hooks for code quality
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 18.18+ or 20+
+- npm, yarn, or pnpm
 - Supabase account
 
 ### Installation
@@ -114,6 +115,14 @@ book-voice-repo/
 - `npm run format` - Format code with Prettier
 
 ## Features
+
+### Recent Updates
+
+- ✅ **2026-01-16**: Upgraded to Next.js 16.1.1 and React 19
+  - Migrated to async Request APIs (cookies, headers)
+  - Updated ESLint to v9 with flat config format
+  - Enabled Turbopack for faster builds
+  - Updated all dependencies to latest versions
 
 ### Phase 1 (MVP)
 
