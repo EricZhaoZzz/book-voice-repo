@@ -40,6 +40,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       textbooks: {
         Row: {
@@ -84,6 +85,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       units: {
         Row: {
@@ -119,6 +121,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       lessons: {
         Row: {
@@ -160,6 +163,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       favorites: {
         Row: {
@@ -180,6 +184,7 @@ export interface Database {
           lesson_id?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       play_history: {
         Row: {
@@ -215,6 +220,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       learning_stats: {
         Row: {
@@ -241,6 +247,7 @@ export interface Database {
           lessons_completed?: number;
           created_at?: string;
         };
+        Relationships: [];
       };
       play_logs: {
         Row: {
@@ -270,6 +277,7 @@ export interface Database {
           completed?: boolean;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: {
@@ -279,6 +287,9 @@ export interface Database {
       [_ in never]: never;
     };
     Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
       [_ in never]: never;
     };
   };

@@ -1,0 +1,263 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { textbookSchema, type TextbookFormData } from "@/lib/validations/content";
+import { generateToken } from "@/lib/utils";
+import type { Database } from "@/types/database";
+
+type Textbook = Database["public"]["Tables"]["textbooks"]["Row"];
+type Unit = Database["public"]["Tables"]["units"]["Row"];
+type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
+
+async function checkAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const { data: profile } = (await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single()) as { data: { role: "student" | "admin" } | null };
+
+  if (!profile || profile.role !== "admin") throw new Error("Forbidden");
+  return { supabase, userId: user.id };
+}
+
+export async function getTextbooks(): Promise<Textbook[]> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase
+    .from("textbooks")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getTextbook(id: string): Promise<Textbook> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase.from("textbooks").select("*").eq("id", id).single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function createTextbook(formData: TextbookFormData) {
+  const { supabase, userId } = await checkAdmin();
+  const validated = textbookSchema.parse(formData);
+
+  const { error } = await supabase.from("textbooks").insert({
+    name: validated.name,
+    grade: validated.grade,
+    publisher: validated.publisher,
+    version: validated.version,
+    description: validated.description || null,
+    cover_url: validated.cover_url || null,
+    is_free: validated.is_free,
+    free_units_count: validated.free_units_count,
+    created_by: userId,
+  });
+
+  if (error) throw error;
+  revalidatePath("/admin/textbooks");
+}
+
+export async function updateTextbook(id: string, formData: TextbookFormData) {
+  const { supabase } = await checkAdmin();
+  const validated = textbookSchema.parse(formData);
+
+  const { error } = await supabase
+    .from("textbooks")
+    .update({
+      name: validated.name,
+      grade: validated.grade,
+      publisher: validated.publisher,
+      version: validated.version,
+      description: validated.description || null,
+      cover_url: validated.cover_url || null,
+      is_free: validated.is_free,
+      free_units_count: validated.free_units_count,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath("/admin/textbooks");
+}
+
+export async function deleteTextbook(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data: units } = await supabase.from("units").select("id").eq("textbook_id", id).limit(1);
+
+  if (units && units.length > 0) {
+    throw new Error("Cannot delete textbook with existing units");
+  }
+
+  const { error } = await supabase.from("textbooks").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath("/admin/textbooks");
+}
+
+export async function getUnits(textbookId: string): Promise<Unit[]> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase
+    .from("units")
+    .select("*")
+    .eq("textbook_id", textbookId)
+    .order("order_num");
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createUnit(formData: {
+  textbook_id: string;
+  name: string;
+  order_num: number;
+  description?: string;
+  is_free?: boolean;
+  requires_vip?: boolean;
+}) {
+  const { supabase } = await checkAdmin();
+
+  const { error } = await supabase.from("units").insert({
+    textbook_id: formData.textbook_id,
+    name: formData.name,
+    order_num: formData.order_num,
+    description: formData.description || null,
+    is_free: formData.is_free ?? false,
+    requires_vip: formData.requires_vip ?? false,
+  });
+  if (error) throw error;
+  revalidatePath(`/admin/textbooks/${formData.textbook_id}/units`);
+}
+
+export async function updateUnit(
+  id: string,
+  formData: {
+    name?: string;
+    order_num?: number;
+    description?: string;
+    is_free?: boolean;
+    requires_vip?: boolean;
+  }
+) {
+  const { supabase } = await checkAdmin();
+
+  const { data: unit } = await supabase.from("units").select("textbook_id").eq("id", id).single();
+  const { error } = await supabase.from("units").update(formData).eq("id", id);
+  if (error) throw error;
+  if (unit) revalidatePath(`/admin/textbooks/${unit.textbook_id}/units`);
+}
+
+export async function deleteUnit(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data: unit } = await supabase.from("units").select("textbook_id").eq("id", id).single();
+
+  const { data: lessons } = await supabase.from("lessons").select("id").eq("unit_id", id).limit(1);
+
+  if (lessons && lessons.length > 0) {
+    throw new Error("Cannot delete unit with existing lessons");
+  }
+
+  const { error } = await supabase.from("units").delete().eq("id", id);
+  if (error) throw error;
+  if (unit) revalidatePath(`/admin/textbooks/${unit.textbook_id}/units`);
+}
+
+export async function getLessons(unitId: string): Promise<Lesson[]> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("*")
+    .eq("unit_id", unitId)
+    .order("order_num");
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createLesson(formData: {
+  unit_id: string;
+  name: string;
+  order_num: number;
+  audio_url: string;
+  audio_duration: number;
+}) {
+  const { supabase } = await checkAdmin();
+
+  const { data: unit } = await supabase
+    .from("units")
+    .select("textbook_id")
+    .eq("id", formData.unit_id)
+    .single();
+
+  const { error } = await supabase.from("lessons").insert({
+    unit_id: formData.unit_id,
+    name: formData.name,
+    order_num: formData.order_num,
+    audio_url: formData.audio_url,
+    audio_duration: formData.audio_duration,
+    qr_code_token: generateToken(),
+  });
+
+  if (error) throw error;
+  if (unit)
+    revalidatePath(`/admin/textbooks/${unit.textbook_id}/units/${formData.unit_id}/lessons`);
+}
+
+export async function updateLesson(
+  id: string,
+  formData: { name?: string; order_num?: number; audio_url?: string; audio_duration?: number }
+) {
+  const { supabase } = await checkAdmin();
+
+  const { data: lesson } = await supabase.from("lessons").select("unit_id").eq("id", id).single();
+  const { error } = await supabase.from("lessons").update(formData).eq("id", id);
+  if (error) throw error;
+
+  if (lesson) {
+    const { data: unit } = await supabase
+      .from("units")
+      .select("textbook_id")
+      .eq("id", lesson.unit_id)
+      .single();
+    if (unit)
+      revalidatePath(`/admin/textbooks/${unit.textbook_id}/units/${lesson.unit_id}/lessons`);
+  }
+}
+
+export async function deleteLesson(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data: lesson } = await supabase
+    .from("lessons")
+    .select("unit_id, audio_url")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase.from("lessons").delete().eq("id", id);
+  if (error) throw error;
+
+  if (lesson?.audio_url) {
+    const path = lesson.audio_url.split("/").pop();
+    if (path) {
+      await supabase.storage.from("audio").remove([path]);
+    }
+  }
+
+  if (lesson) {
+    const { data: unit } = await supabase
+      .from("units")
+      .select("textbook_id")
+      .eq("id", lesson.unit_id)
+      .single();
+    if (unit)
+      revalidatePath(`/admin/textbooks/${unit.textbook_id}/units/${lesson.unit_id}/lessons`);
+  }
+}

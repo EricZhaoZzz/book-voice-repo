@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +17,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
+import { login, register, enableGuestMode } from "@/features/auth/actions";
 
 type FieldErrors = Record<string, string>;
 
 export default function AuthPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
 
@@ -62,11 +68,13 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement Supabase auth login
-      console.log("Login:", result.data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Redirect to home page after successful login
-      // router.push('/');
+      const response = await login(result.data.email, result.data.password);
+      if (response.error) {
+        setGeneralError(response.error);
+      } else {
+        router.push(redirectTo);
+        router.refresh();
+      }
     } catch {
       setGeneralError("Login failed. Please check your credentials.");
     } finally {
@@ -100,11 +108,17 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement Supabase auth register
-      console.log("Register:", result.data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Redirect to home page after successful registration
-      // router.push('/');
+      const response = await register(
+        result.data.email,
+        result.data.password,
+        result.data.username
+      );
+      if (response.error) {
+        setGeneralError(response.error);
+      } else {
+        router.push(redirectTo);
+        router.refresh();
+      }
     } catch {
       setGeneralError("Registration failed. Please try again.");
     } finally {
@@ -112,9 +126,17 @@ export default function AuthPage() {
     }
   };
 
-  const handleGuestMode = () => {
-    // TODO: Implement guest mode with localStorage
-    console.log("Continue as guest");
+  const handleGuestMode = async () => {
+    setIsLoading(true);
+    try {
+      await enableGuestMode();
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      setGeneralError("Failed to enable guest mode.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
