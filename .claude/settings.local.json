@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint)",
+      "Bash(npm install)",
+      "Bash(npx husky init)",
+      "Bash(tree:*)",
+      "Bash(npm install @supabase/supabase-js @tanstack/react-query zustand react-hook-form zod howler qrcode.react jspdf)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}
