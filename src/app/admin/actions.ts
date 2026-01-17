@@ -300,3 +300,56 @@ export async function getUsers(options: {
   if (error) throw error;
   return { data: data as unknown as User[], count };
 }
+
+type UserDetail = Database["public"]["Tables"]["users"]["Row"] & {
+  user_stats?: Database["public"]["Tables"]["user_stats"]["Row"] | null;
+  learning_records?: Array<{
+    id: string;
+    lesson_id: string;
+    played_seconds: number;
+    completed: boolean;
+    created_at: string;
+    lessons?: {
+      id: string;
+      name: string;
+      unit_id: string;
+      units?: {
+        id: string;
+        textbook_id: string;
+        name: string;
+        textbooks?: {
+          id: string;
+          name: string;
+        } | null;
+      } | null;
+    } | null;
+  }>;
+};
+
+export async function getUser(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data, error } = await supabase
+    .from("users")
+    .select(
+      `
+      *,
+      user_stats (*),
+      learning_records (
+        *,
+        lessons (
+          *,
+          units (
+            *,
+            textbooks (name)
+          )
+        )
+      )
+    `
+    )
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data as unknown as UserDetail;
+}

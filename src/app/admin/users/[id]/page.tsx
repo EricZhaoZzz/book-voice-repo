@@ -1,10 +1,23 @@
-import { Card } from "@/components/ui/card";
+import { notFound } from "next/navigation";
+import { getUser } from "../../actions";
+import { UserDetails } from "./user-details";
 
-export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  let user;
+  try {
+    user = await getUser(id);
+  } catch {
+    notFound();
+  }
+
+  if (!user) notFound();
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">User Details</h1>
-      <Card className="p-8 text-center text-muted-foreground">User details page - coming soon</Card>
+      <UserDetails user={user} />
     </div>
   );
 }
