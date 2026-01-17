@@ -27,6 +27,39 @@ async function checkAdmin() {
   return { supabase, userId: user.id };
 }
 
+interface LogEntry {
+  action: string;
+  module: string;
+  resource_type: string;
+  resource_id?: string;
+  old_value?: unknown;
+  new_value?: unknown;
+}
+
+async function logOperation(log: LogEntry) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { error } = await supabase.from("operation_logs").insert({
+    user_id: user.id,
+    action: log.action,
+    module: log.module,
+    resource_type: log.resource_type,
+    resource_id: log.resource_id || null,
+    old_value: log.old_value ? JSON.parse(JSON.stringify(log.old_value)) : null,
+    new_value: log.new_value ? JSON.parse(JSON.stringify(log.new_value)) : null,
+    ip_address: null,
+    user_agent: null,
+  });
+
+  if (error) {
+    console.error("Failed to log operation:", error);
+  }
+}
+
 export async function getTextbooks(): Promise<Textbook[]> {
   const { supabase } = await checkAdmin();
   const { data, error } = await supabase
@@ -50,25 +83,40 @@ export async function createTextbook(formData: TextbookFormData) {
   const { supabase, userId } = await checkAdmin();
   const validated = textbookSchema.parse(formData);
 
-  const { error } = await supabase.from("textbooks").insert({
-    name: validated.name,
-    grade: validated.grade,
-    publisher: validated.publisher,
-    version: validated.version,
-    description: validated.description || null,
-    cover_url: validated.cover_url || null,
-    is_free: validated.is_free,
-    free_units_count: validated.free_units_count,
-    created_by: userId,
-  });
+  const { data: newTextbook, error } = await supabase
+    .from("textbooks")
+    .insert({
+      name: validated.name,
+      grade: validated.grade,
+      publisher: validated.publisher,
+      version: validated.version,
+      description: validated.description || null,
+      cover_url: validated.cover_url || null,
+      is_free: validated.is_free,
+      free_units_count: validated.free_units_count,
+      created_by: userId,
+    })
+    .select()
+    .single();
 
   if (error) throw error;
+
+  await logOperation({
+    action: "create",
+    module: "content",
+    resource_type: "textbook",
+    resource_id: newTextbook.id,
+    new_value: validated,
+  });
+
   revalidatePath("/admin/textbooks");
 }
 
 export async function updateTextbook(id: string, formData: TextbookFormData) {
   const { supabase } = await checkAdmin();
   const validated = textbookSchema.parse(formData);
+
+  const { data: oldTextbook } = await supabase.from("textbooks").select("*").eq("id", id).single();
 
   const { error } = await supabase
     .from("textbooks")
@@ -85,6 +133,16 @@ export async function updateTextbook(id: string, formData: TextbookFormData) {
     .eq("id", id);
 
   if (error) throw error;
+
+  await logOperation({
+    action: "update",
+    module: "content",
+    resource_type: "textbook",
+    resource_id: id,
+    old_value: oldTextbook,
+    new_value: validated,
+  });
+
   revalidatePath("/admin/textbooks");
 }
 
@@ -97,8 +155,19 @@ export async function deleteTextbook(id: string) {
     throw new Error("Cannot delete textbook with existing units");
   }
 
+  const { data: oldTextbook } = await supabase.from("textbooks").select("*").eq("id", id).single();
+
   const { error } = await supabase.from("textbooks").delete().eq("id", id);
   if (error) throw error;
+
+  await logOperation({
+    action: "delete",
+    module: "content",
+    resource_type: "textbook",
+    resource_id: id,
+    old_value: oldTextbook,
+  });
+
   revalidatePath("/admin/textbooks");
 }
 
@@ -124,15 +193,29 @@ export async function createUnit(formData: {
 }) {
   const { supabase } = await checkAdmin();
 
-  const { error } = await supabase.from("units").insert({
-    textbook_id: formData.textbook_id,
-    name: formData.name,
-    order_num: formData.order_num,
-    description: formData.description || null,
-    is_free: formData.is_free ?? false,
-    requires_vip: formData.requires_vip ?? false,
-  });
+  const { data: newUnit, error } = await supabase
+    .from("units")
+    .insert({
+      textbook_id: formData.textbook_id,
+      name: formData.name,
+      order_num: formData.order_num,
+      description: formData.description || null,
+      is_free: formData.is_free ?? false,
+      requires_vip: formData.requires_vip ?? false,
+    })
+    .select()
+    .single();
+
   if (error) throw error;
+
+  await logOperation({
+    action: "create",
+    module: "content",
+    resource_type: "unit",
+    resource_id: newUnit.id,
+    new_value: formData,
+  });
+
   revalidatePath(`/admin/textbooks/${formData.textbook_id}/units`);
 }
 
@@ -148,9 +231,21 @@ export async function updateUnit(
 ) {
   const { supabase } = await checkAdmin();
 
+  const { data: oldUnit } = await supabase.from("units").select("*").eq("id", id).single();
   const { data: unit } = await supabase.from("units").select("textbook_id").eq("id", id).single();
+
   const { error } = await supabase.from("units").update(formData).eq("id", id);
   if (error) throw error;
+
+  await logOperation({
+    action: "update",
+    module: "content",
+    resource_type: "unit",
+    resource_id: id,
+    old_value: oldUnit,
+    new_value: formData,
+  });
+
   if (unit) revalidatePath(`/admin/textbooks/${unit.textbook_id}/units`);
 }
 
@@ -158,6 +253,7 @@ export async function deleteUnit(id: string) {
   const { supabase } = await checkAdmin();
 
   const { data: unit } = await supabase.from("units").select("textbook_id").eq("id", id).single();
+  const { data: oldUnit } = await supabase.from("units").select("*").eq("id", id).single();
 
   const { data: lessons } = await supabase.from("lessons").select("id").eq("unit_id", id).limit(1);
 
@@ -167,6 +263,15 @@ export async function deleteUnit(id: string) {
 
   const { error } = await supabase.from("units").delete().eq("id", id);
   if (error) throw error;
+
+  await logOperation({
+    action: "delete",
+    module: "content",
+    resource_type: "unit",
+    resource_id: id,
+    old_value: oldUnit,
+  });
+
   if (unit) revalidatePath(`/admin/textbooks/${unit.textbook_id}/units`);
 }
 
@@ -197,16 +302,29 @@ export async function createLesson(formData: {
     .eq("id", formData.unit_id)
     .single();
 
-  const { error } = await supabase.from("lessons").insert({
-    unit_id: formData.unit_id,
-    name: formData.name,
-    order_num: formData.order_num,
-    audio_url: formData.audio_url,
-    audio_duration: formData.audio_duration,
-    qr_code_token: generateToken(),
-  });
+  const { data: newLesson, error } = await supabase
+    .from("lessons")
+    .insert({
+      unit_id: formData.unit_id,
+      name: formData.name,
+      order_num: formData.order_num,
+      audio_url: formData.audio_url,
+      audio_duration: formData.audio_duration,
+      qr_code_token: generateToken(),
+    })
+    .select()
+    .single();
 
   if (error) throw error;
+
+  await logOperation({
+    action: "create",
+    module: "content",
+    resource_type: "lesson",
+    resource_id: newLesson.id,
+    new_value: formData,
+  });
+
   if (unit)
     revalidatePath(`/admin/textbooks/${unit.textbook_id}/units/${formData.unit_id}/lessons`);
 }
@@ -217,9 +335,20 @@ export async function updateLesson(
 ) {
   const { supabase } = await checkAdmin();
 
+  const { data: oldLesson } = await supabase.from("lessons").select("*").eq("id", id).single();
   const { data: lesson } = await supabase.from("lessons").select("unit_id").eq("id", id).single();
+
   const { error } = await supabase.from("lessons").update(formData).eq("id", id);
   if (error) throw error;
+
+  await logOperation({
+    action: "update",
+    module: "content",
+    resource_type: "lesson",
+    resource_id: id,
+    old_value: oldLesson,
+    new_value: formData,
+  });
 
   if (lesson) {
     const { data: unit } = await supabase
@@ -241,6 +370,8 @@ export async function deleteLesson(id: string) {
     .eq("id", id)
     .single();
 
+  const { data: oldLesson } = await supabase.from("lessons").select("*").eq("id", id).single();
+
   const { error } = await supabase.from("lessons").delete().eq("id", id);
   if (error) throw error;
 
@@ -250,6 +381,14 @@ export async function deleteLesson(id: string) {
       await supabase.storage.from("audio").remove([path]);
     }
   }
+
+  await logOperation({
+    action: "delete",
+    module: "content",
+    resource_type: "lesson",
+    resource_id: id,
+    old_value: oldLesson,
+  });
 
   if (lesson) {
     const { data: unit } = await supabase
@@ -464,6 +603,14 @@ export async function updateSettings(updates: Record<string, unknown>) {
   const { error } = result as { error: { message: string } | null };
 
   if (error) throw new Error(error.message);
+
+  await logOperation({
+    action: "update",
+    module: "settings",
+    resource_type: "system_settings",
+    new_value: updates,
+  });
+
   revalidatePath("/admin/settings");
 }
 
@@ -513,18 +660,31 @@ export async function createAudio(formData: {
     await supabase.from("audios").update({ is_default: false }).eq("lesson_id", formData.lesson_id);
   }
 
-  const { error } = await supabase.from("audios").insert({
-    lesson_id: formData.lesson_id,
-    title: formData.title,
-    type: formData.type || "main",
-    audio_url: formData.audio_url,
-    duration: formData.duration || null,
-    order_num: formData.order_num || 0,
-    is_default: formData.is_default || false,
-    subtitle_text: formData.subtitle_text ? JSON.parse(formData.subtitle_text) : null,
-  });
+  const { data: newAudio, error } = await supabase
+    .from("audios")
+    .insert({
+      lesson_id: formData.lesson_id,
+      title: formData.title,
+      type: formData.type || "main",
+      audio_url: formData.audio_url,
+      duration: formData.duration || null,
+      order_num: formData.order_num || 0,
+      is_default: formData.is_default || false,
+      subtitle_text: formData.subtitle_text ? JSON.parse(formData.subtitle_text) : null,
+    })
+    .select()
+    .single();
 
   if (error) throw error;
+
+  await logOperation({
+    action: "create",
+    module: "content",
+    resource_type: "audio",
+    resource_id: newAudio.id,
+    new_value: formData,
+  });
+
   revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${formData.lesson_id}/audios`);
 }
 
@@ -542,6 +702,7 @@ export async function updateAudio(
 ) {
   const { supabase } = await checkAdmin();
 
+  const { data: oldAudio } = await supabase.from("audios").select("*").eq("id", id).single();
   const { data: audio } = await supabase.from("audios").select("lesson_id").eq("id", id).single();
 
   // If setting as default, unset other defaults for this lesson
@@ -569,6 +730,15 @@ export async function updateAudio(
 
   if (error) throw error;
 
+  await logOperation({
+    action: "update",
+    module: "content",
+    resource_type: "audio",
+    resource_id: id,
+    old_value: oldAudio,
+    new_value: formData,
+  });
+
   if (audio) {
     revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
   }
@@ -583,6 +753,8 @@ export async function deleteAudio(id: string) {
     .eq("id", id)
     .single();
 
+  const { data: oldAudio } = await supabase.from("audios").select("*").eq("id", id).single();
+
   const { error } = await supabase.from("audios").delete().eq("id", id);
   if (error) throw error;
 
@@ -593,6 +765,14 @@ export async function deleteAudio(id: string) {
       await supabase.storage.from("audio").remove([path]);
     }
   }
+
+  await logOperation({
+    action: "delete",
+    module: "content",
+    resource_type: "audio",
+    resource_id: id,
+    old_value: oldAudio,
+  });
 
   if (audio) {
     revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
@@ -606,6 +786,8 @@ export async function setDefaultAudio(id: string) {
 
   if (!audio) throw new Error("Audio not found");
 
+  const { data: oldAudio } = await supabase.from("audios").select("*").eq("id", id).single();
+
   // Unset all defaults for this lesson
   await supabase.from("audios").update({ is_default: false }).eq("lesson_id", audio.lesson_id);
 
@@ -613,6 +795,16 @@ export async function setDefaultAudio(id: string) {
   const { error } = await supabase.from("audios").update({ is_default: true }).eq("id", id);
 
   if (error) throw error;
+
+  await logOperation({
+    action: "update",
+    module: "content",
+    resource_type: "audio",
+    resource_id: id,
+    old_value: oldAudio,
+    new_value: { is_default: true },
+  });
+
   revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
 }
 
