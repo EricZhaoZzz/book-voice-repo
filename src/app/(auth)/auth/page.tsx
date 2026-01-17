@@ -26,7 +26,7 @@ function AuthForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
   const successMessage =
-    searchParams.get("reset") === "success" ? "密码重置成功,请使用新密码登录" : "";
+    searchParams.get("reset") === "success" ? "密码重置成功，请使用新密码登录" : "";
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
