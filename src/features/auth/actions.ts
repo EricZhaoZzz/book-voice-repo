@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { forgotPasswordSchema } from "@/lib/validations/auth";
+import { z } from "zod";
 
 export async function login(email: string, password: string) {
   const supabase = await createClient();
@@ -62,4 +64,57 @@ export async function enableGuestMode() {
 export async function disableGuestMode() {
   const cookieStore = await cookies();
   cookieStore.delete("guest_mode");
+}
+
+export async function requestPasswordReset(
+  email: string
+): Promise<{ success: true } | { error: string }> {
+  const validation = forgotPasswordSchema.safeParse({ email });
+
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+  const redirectTo = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${redirectTo}/auth/reset-password`,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+const passwordSchema = z.object({
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+});
+
+export async function resetPassword(
+  password: string
+): Promise<{ success: true } | { error: string }> {
+  const validation = passwordSchema.safeParse({ password });
+
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: true };
 }

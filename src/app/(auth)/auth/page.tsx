@@ -25,6 +25,8 @@ function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
+  const successMessage =
+    searchParams.get("reset") === "success" ? "密码重置成功，请使用新密码登录" : "";
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -155,6 +157,12 @@ function AuthForm() {
             <CardContent className="space-y-4">
               <CardTitle className="text-xl">欢迎回来</CardTitle>
               <CardDescription>输入您的账号信息登录</CardDescription>
+
+              {successMessage && (
+                <div className="p-3 text-sm text-green-600 bg-green-50 rounded-lg border border-green-100">
+                  {successMessage}
+                </div>
+              )}
 
               {generalError && (
                 <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">
