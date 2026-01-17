@@ -56,6 +56,7 @@ export default function ResetPasswordPage() {
         setGeneralError(response.error);
       } else {
         router.push("/auth?reset=success");
+        router.refresh();
       }
     } catch {
       setGeneralError("密码重置失败，请重试。");
@@ -87,9 +88,15 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className={`h-11 ${errors.password ? "border-red-500" : ""}`}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
+                className={`h-11 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
-              {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+              {errors.password && (
+                <p id="password-error" className="text-sm text-red-500">
+                  {errors.password}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">确认密码</Label>
@@ -100,10 +107,14 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
-                className={`h-11 ${errors.confirmPassword ? "border-red-500" : ""}`}
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
+                className={`h-11 ${errors.confirmPassword ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                <p id="confirmPassword-error" className="text-sm text-red-500">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
           </CardContent>
