@@ -261,3 +261,42 @@ export async function deleteLesson(id: string) {
       revalidatePath(`/admin/textbooks/${unit.textbook_id}/units/${lesson.unit_id}/lessons`);
   }
 }
+
+// User management functions
+type User = Database["public"]["Tables"]["users"]["Row"] & {
+  user_stats?: Database["public"]["Tables"]["user_stats"]["Row"] | null;
+};
+
+export async function getUsers(options: {
+  search?: string;
+  role?: "student" | "admin" | "super_admin";
+  status?: "active" | "suspended" | "banned";
+  page?: number;
+  limit?: number;
+}) {
+  const { supabase } = await checkAdmin();
+  const { search, role, status, page = 1, limit = 20 } = options;
+
+  let query = supabase.from("users").select(
+    `
+      *,
+      user_stats (
+        total_learning_minutes,
+        total_lessons_completed,
+        last_activity_at
+      )
+    `,
+    { count: "exact" }
+  );
+
+  if (role) query = query.eq("role", role);
+  if (status) query = query.eq("status", status);
+  if (search) query = query.ilike("email", `%${search}%`);
+
+  const { data, error, count } = await query
+    .range((page - 1) * limit, page * limit - 1)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return { data: data as unknown as User[], count };
+}
