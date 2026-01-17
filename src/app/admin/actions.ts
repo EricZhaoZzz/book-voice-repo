@@ -467,6 +467,155 @@ export async function updateSettings(updates: Record<string, unknown>) {
   revalidatePath("/admin/settings");
 }
 
+type Audio = Database["public"]["Tables"]["audios"]["Row"];
+
+// Audio management functions
+export async function getAudios(lessonId: string): Promise<Audio[]> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase
+    .from("audios")
+    .select("*")
+    .eq("lesson_id", lessonId)
+    .order("order_num");
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getAudio(id: string): Promise<Audio> {
+  const { supabase } = await checkAdmin();
+  const { data, error } = await supabase.from("audios").select("*").eq("id", id).single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function createAudio(formData: {
+  lesson_id: string;
+  title: string;
+  type?: "main" | "listening" | "practice";
+  audio_url: string;
+  duration?: number;
+  order_num?: number;
+  is_default?: boolean;
+  subtitle_text?: string;
+}) {
+  const { supabase } = await checkAdmin();
+
+  const { data: lesson } = await supabase
+    .from("lessons")
+    .select("unit_id")
+    .eq("id", formData.lesson_id)
+    .single();
+
+  // If setting as default, unset other defaults
+  if (formData.is_default) {
+    await supabase.from("audios").update({ is_default: false }).eq("lesson_id", formData.lesson_id);
+  }
+
+  const { error } = await supabase.from("audios").insert({
+    lesson_id: formData.lesson_id,
+    title: formData.title,
+    type: formData.type || "main",
+    audio_url: formData.audio_url,
+    duration: formData.duration || null,
+    order_num: formData.order_num || 0,
+    is_default: formData.is_default || false,
+    subtitle_text: formData.subtitle_text ? JSON.parse(formData.subtitle_text) : null,
+  });
+
+  if (error) throw error;
+  revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${formData.lesson_id}/audios`);
+}
+
+export async function updateAudio(
+  id: string,
+  formData: {
+    title?: string;
+    type?: "main" | "listening" | "practice";
+    audio_url?: string;
+    duration?: number;
+    order_num?: number;
+    is_default?: boolean;
+    subtitle_text?: string;
+  }
+) {
+  const { supabase } = await checkAdmin();
+
+  const { data: audio } = await supabase.from("audios").select("lesson_id").eq("id", id).single();
+
+  // If setting as default, unset other defaults for this lesson
+  if (formData.is_default && audio) {
+    await supabase
+      .from("audios")
+      .update({ is_default: false })
+      .eq("lesson_id", audio.lesson_id)
+      .neq("id", id);
+  }
+
+  const { error } = await supabase
+    .from("audios")
+    .update({
+      title: formData.title,
+      type: formData.type,
+      audio_url: formData.audio_url,
+      duration: formData.duration,
+      order_num: formData.order_num,
+      is_default: formData.is_default,
+      subtitle_text: formData.subtitle_text ? JSON.parse(formData.subtitle_text) : undefined,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+
+  if (audio) {
+    revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
+  }
+}
+
+export async function deleteAudio(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data: audio } = await supabase
+    .from("audios")
+    .select("lesson_id, audio_url")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase.from("audios").delete().eq("id", id);
+  if (error) throw error;
+
+  // Delete file from storage
+  if (audio?.audio_url) {
+    const path = audio.audio_url.split("/").pop();
+    if (path) {
+      await supabase.storage.from("audio").remove([path]);
+    }
+  }
+
+  if (audio) {
+    revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
+  }
+}
+
+export async function setDefaultAudio(id: string) {
+  const { supabase } = await checkAdmin();
+
+  const { data: audio } = await supabase.from("audios").select("lesson_id").eq("id", id).single();
+
+  if (!audio) throw new Error("Audio not found");
+
+  // Unset all defaults for this lesson
+  await supabase.from("audios").update({ is_default: false }).eq("lesson_id", audio.lesson_id);
+
+  // Set this one as default
+  const { error } = await supabase.from("audios").update({ is_default: true }).eq("id", id);
+
+  if (error) throw error;
+  revalidatePath(`/admin/content/textbooks/*/units/*/lessons/${audio.lesson_id}/audios`);
+}
+
 // Log functions
 export async function getOperationLogs(
   options: {
@@ -480,10 +629,14 @@ export async function getOperationLogs(
   const { supabase } = await checkAdmin();
 
   // Only super_admin can access logs
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) throw new Error("Unauthorized");
+
   const { data: profile } = (await supabase
     .from("users")
     .select("role")
-    .eq("id", (await supabase.auth.getUser()).data.user?.id)
+    .eq("id", userId)
     .single()) as { data: { role: string } | null };
 
   if (profile?.role !== "super_admin") {
