@@ -466,3 +466,54 @@ export async function updateSettings(updates: Record<string, unknown>) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/settings");
 }
+
+// Log functions
+export async function getOperationLogs(
+  options: {
+    module?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+  } = {}
+): Promise<{ data: Array<Record<string, unknown>>; count: number }> {
+  const { supabase } = await checkAdmin();
+
+  // Only super_admin can access logs
+  const { data: profile } = (await supabase
+    .from("users")
+    .select("role")
+    .eq("id", (await supabase.auth.getUser()).data.user?.id)
+    .single()) as { data: { role: string } | null };
+
+  if (profile?.role !== "super_admin") {
+    throw new Error("Unauthorized: Super admin required");
+  }
+
+  const { module, startDate, endDate, page = 1, limit = 50 } = options;
+
+  let query = supabase.from("operation_logs" as never).select(
+    `
+      *,
+      users:user_id (email)
+    `,
+    { count: "exact" }
+  );
+
+  if (module) query = query.eq("module", module);
+  if (startDate) query = query.gte("created_at", startDate);
+  if (endDate) query = query.lte("created_at", endDate);
+
+  const result = await query
+    .range((page - 1) * limit, page * limit - 1)
+    .order("created_at", { ascending: false });
+
+  const { data, error, count } = result as {
+    data: Array<Record<string, unknown>>;
+    error: { message: string } | null;
+    count: number | null;
+  };
+
+  if (error) throw new Error(error.message);
+  return { data, count: count || 0 };
+}
