@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const response = await requestPasswordReset(result.data.email);
-      if (response.error) {
+      if ("error" in response) {
         setError(response.error);
       } else {
         setSuccess(true);

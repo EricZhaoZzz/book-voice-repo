@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
 
     try {
       const response = await resetPassword(result.data.password);
-      if (response.error) {
+      if ("error" in response) {
         setGeneralError(response.error);
       } else {
         router.push("/auth?reset=success");

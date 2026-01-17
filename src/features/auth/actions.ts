@@ -72,7 +72,7 @@ export async function requestPasswordReset(
   const validation = forgotPasswordSchema.safeParse({ email });
 
   if (!validation.success) {
-    return { error: validation.error.errors[0].message };
+    return { error: validation.error.issues[0].message };
   }
 
   const supabase = await createClient();
@@ -103,7 +103,7 @@ export async function resetPassword(
   const validation = passwordSchema.safeParse({ password });
 
   if (!validation.success) {
-    return { error: validation.error.errors[0].message };
+    return { error: validation.error.issues[0].message };
   }
 
   const supabase = await createClient();
