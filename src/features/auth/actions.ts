@@ -3,7 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/validations/auth";
+import { forgotPasswordSchema } from "@/lib/validations/auth";
+import { z } from "zod";
 
 export async function login(email: string, password: string) {
   const supabase = await createClient();
@@ -88,13 +89,18 @@ export async function requestPasswordReset(
   return { success: true };
 }
 
+const passwordSchema = z.object({
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+});
+
 export async function resetPassword(
   password: string
 ): Promise<{ success: true } | { error: string }> {
-  const validation = resetPasswordSchema.safeParse({
-    password,
-    confirmPassword: password,
-  });
+  const validation = passwordSchema.safeParse({ password });
 
   if (!validation.success) {
     return { error: validation.error.errors[0].message };
