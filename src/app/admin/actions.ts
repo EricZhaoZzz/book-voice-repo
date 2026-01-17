@@ -353,3 +353,51 @@ export async function getUser(id: string) {
   if (error) throw error;
   return data as unknown as UserDetail;
 }
+
+// Analytics functions
+export async function getAnalyticsData() {
+  const { supabase } = await checkAdmin();
+
+  // Get total users
+  const { count: totalUsers } = await supabase
+    .from("users")
+    .select("*", { count: "exact", head: true });
+
+  // Get new users today
+  const today = new Date().toISOString().split("T")[0];
+  const { count: todayNewUsers } = await supabase
+    .from("users")
+    .select("*", { count: "exact", head: true })
+    .gte("created_at", today);
+
+  // Get active users (last 7 days)
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { count: weeklyActiveUsers } = await supabase
+    .from("users")
+    .select("*", { count: "exact", head: true })
+    .gte("last_login_at", sevenDaysAgo);
+
+  // Get learning stats
+  const { data: learningStats } = await supabase
+    .from("user_stats")
+    .select("total_learning_minutes, total_lessons_completed");
+
+  const totalLearningMinutes =
+    learningStats?.reduce((sum, s) => sum + (s.total_learning_minutes || 0), 0) || 0;
+  const totalLessonsCompleted =
+    learningStats?.reduce((sum, s) => sum + (s.total_lessons_completed || 0), 0) || 0;
+
+  // Get content count
+  const { count: textbookCount } = await supabase
+    .from("textbooks")
+    .select("*", { count: "exact", head: true });
+
+  return {
+    totalUsers: totalUsers || 0,
+    todayNewUsers: todayNewUsers || 0,
+    weeklyActiveUsers: weeklyActiveUsers || 0,
+    totalLearningMinutes,
+    totalLessonsCompleted,
+    textbookCount: textbookCount || 0,
+  };
+}
