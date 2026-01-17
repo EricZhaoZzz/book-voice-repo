@@ -428,3 +428,41 @@ export async function deleteMediaFile(path: string) {
   if (error) throw error;
   revalidatePath("/admin/media");
 }
+
+// Settings functions
+export async function getSettings() {
+  const { supabase } = await checkAdmin();
+
+  const result = await supabase
+    .from("system_settings" as never)
+    .select("*")
+    .single();
+  const { data } = result as { data: Record<string, unknown> | null };
+
+  const settings = data || {
+    site_name: "Book Voice",
+    logo_url: "",
+    allow_guest_access: false,
+    allow_registration: true,
+    default_playback_speed: 1,
+    auto_play_next: false,
+    max_upload_size: 50,
+    allowed_formats: "mp3,wav,ogg",
+    login_attempts: 5,
+    captcha_enabled: false,
+  };
+
+  return settings;
+}
+
+export async function updateSettings(updates: Record<string, unknown>) {
+  const { supabase } = await checkAdmin();
+
+  const result = await supabase.from("system_settings" as never).upsert(updates as never, {
+    onConflict: "key",
+  });
+  const { error } = result as { error: { message: string } | null };
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/settings");
+}

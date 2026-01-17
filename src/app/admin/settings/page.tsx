@@ -1,12 +1,13 @@
-import { Card } from "@/components/ui/card";
+import { getSettings } from "../actions";
+import { SettingsForm } from "./settings-form";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const settings = await getSettings();
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">System Settings</h1>
-      <Card className="p-8 text-center text-muted-foreground">
-        System settings page - coming soon
-      </Card>
+      <SettingsForm settings={settings} />
     </div>
   );
 }
