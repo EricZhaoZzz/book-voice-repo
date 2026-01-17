@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/validations/auth";
 
 export async function login(email: string, password: string) {
   const supabase = await createClient();
@@ -64,11 +65,20 @@ export async function disableGuestMode() {
   cookieStore.delete("guest_mode");
 }
 
-export async function requestPasswordReset(email: string) {
+export async function requestPasswordReset(
+  email: string
+): Promise<{ success: true } | { error: string }> {
+  const validation = forgotPasswordSchema.safeParse({ email });
+
+  if (!validation.success) {
+    return { error: validation.error.errors[0].message };
+  }
+
   const supabase = await createClient();
+  const redirectTo = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+    redirectTo: `${redirectTo}/auth/reset-password`,
   });
 
   if (error) {
@@ -78,7 +88,18 @@ export async function requestPasswordReset(email: string) {
   return { success: true };
 }
 
-export async function resetPassword(password: string) {
+export async function resetPassword(
+  password: string
+): Promise<{ success: true } | { error: string }> {
+  const validation = resetPasswordSchema.safeParse({
+    password,
+    confirmPassword: password,
+  });
+
+  if (!validation.success) {
+    return { error: validation.error.errors[0].message };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.auth.updateUser({
