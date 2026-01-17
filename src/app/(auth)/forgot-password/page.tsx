@@ -52,15 +52,13 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white p-6">
-        <Card className="w-full max-w-md border-0 shadow-xl">
+        <Card className="w-full max-w-md border-0 shadow-xl shadow-black/5 bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-2xl">检查您的邮箱</CardTitle>
             <CardDescription>我们已向 {email} 发送了密码重置链接</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              请检查您的邮箱并点击链接重置密码。链接将在 1 小时后过期。
-            </p>
+            <p className="text-sm text-muted-foreground">请检查您的邮箱并点击链接重置密码。</p>
           </CardContent>
           <CardFooter>
             <Link href="/auth" className="w-full">
@@ -74,7 +72,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white p-6">
-      <Card className="w-full max-w-md border-0 shadow-xl">
+      <Card className="w-full max-w-md border-0 shadow-xl shadow-black/5 bg-white/80 backdrop-blur-sm">
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="text-2xl">忘记密码</CardTitle>
