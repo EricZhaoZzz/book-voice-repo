@@ -16,6 +16,8 @@ export interface Database {
           status: "active" | "suspended" | "banned";
           last_login_at: string | null;
           login_count: number;
+          wechat_openid: string | null;
+          wechat_unionid: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -31,6 +33,8 @@ export interface Database {
           status?: "active" | "suspended" | "banned";
           last_login_at?: string | null;
           login_count?: number;
+          wechat_openid?: string | null;
+          wechat_unionid?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -46,6 +50,8 @@ export interface Database {
           status?: "active" | "suspended" | "banned";
           last_login_at?: string | null;
           login_count?: number;
+          wechat_openid?: string | null;
+          wechat_unionid?: string | null;
           created_at?: string;
           updated_at?: string;
         };

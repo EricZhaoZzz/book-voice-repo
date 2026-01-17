@@ -41,11 +41,15 @@ Book Voice is an English listening audio platform for K-12 students, built with 
 ## Commands
 
 ```bash
-npm run dev       # Start development server
+npm run dev       # Start development server (localhost:3000)
 npm run build     # Build for production
-npm run lint      # Run ESLint
+npm run start     # Start production server
+npm run lint      # Run ESLint with auto-fix
 npm run format    # Format with Prettier
+npm run prepare   # Install Husky git hooks
 ```
+
+**Pre-commit Hooks:** Husky + lint-staged automatically runs ESLint and Prettier on staged files before each commit.
 
 ## Project Structure
 
@@ -91,13 +95,28 @@ src/
 
 ## Code Conventions
 
-**TypeScript:** Path alias `@/*` maps to `./src/*`. Unused variables prefixed with `_` are allowed.
+**TypeScript:**
 
-**Styling:** Use `cn()` utility from `lib/utils` to merge Tailwind classes.
+- Path alias `@/*` maps to `./src/*`
+- Strict mode enabled
+- Unused variables prefixed with `_` are allowed (ESLint configured)
+- No explicit `any` warnings
 
-**Commits:** Follow conventional commits (feat, fix, docs, style, refactor, test, chore).
+**Styling:** Use `cn()` utility from `lib/utils` to merge Tailwind classes with proper conditional logic.
 
-**ESLint:** Uses ESLint 9 flat config format (`eslint.config.mjs`).
+**Commits:** Follow conventional commits format:
+
+```
+feat: add new feature
+fix: resolve bug
+docs: update documentation
+style: format code
+refactor: restructure code
+test: add tests
+chore: update dependencies
+```
+
+**ESLint:** Uses ESLint 9 flat config format (`eslint.config.mjs`) with Next.js core web vitals and TypeScript rules.
 
 ## Environment Variables
 
@@ -112,8 +131,26 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## Key Files
 
-- `src/types/database.ts` - Database type definitions
-- `src/lib/supabase/` - Supabase client configurations
+- `src/types/database.ts` - Supabase database type definitions (auto-generated)
+- `src/lib/supabase/client.ts` - Client-side Supabase client (for client components)
+- `src/lib/supabase/server.ts` - Server-side Supabase client (for Server Components/Actions)
+- `src/lib/supabase/middleware.ts` - Auth session refresh middleware
 - `src/lib/validations/` - Zod validation schemas
 - `docs/PRD.md` - Product requirements (Chinese)
-- `docs/TECHNICAL_ARCHITECTURE.md` - Technical architecture details
+- `docs/TECHNICAL_ARCHITECTURE.md` - Comprehensive technical architecture
+- `eslint.config.mjs` - ESLint flat config
+- `.lintstagedrc.js` - Pre-commit linting and formatting rules
+
+## Important Notes
+
+**Supabase Client Usage:**
+
+- Always use `createClient()` from `lib/supabase/server.ts` in Server Components and Server Actions
+- Always use the exported `supabase` instance from `lib/supabase/client.ts` in Client Components
+- Both clients are typed with `Database` type from `types/database.ts`
+
+**Admin Panel:** Comprehensive admin dashboard at `/admin` includes user management, content management (textbooks → units → lessons), media library, system settings, and audit logs.
+
+**Audio Files:** Stored in Supabase Storage with CDN delivery. Target format is MP3 (128kbps, 44.1kHz).
+
+**QR Code Flow:** Each lesson has a unique `qr_code_token` for quick access. Tokens can optionally expire (`qr_code_expires_at`).
