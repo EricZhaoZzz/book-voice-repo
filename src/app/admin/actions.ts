@@ -401,3 +401,30 @@ export async function getAnalyticsData() {
     textbookCount: textbookCount || 0,
   };
 }
+
+// Media functions
+export async function getMediaFiles(options: { page?: number; limit?: number } = {}) {
+  const { supabase } = await checkAdmin();
+  const { page = 1, limit = 20 } = options;
+
+  // Get audio files from storage
+  const { data: files, error } = await supabase.storage.from("audio").list(undefined, {
+    limit: limit,
+    offset: (page - 1) * limit,
+    sortBy: { column: "name", order: "desc" },
+  });
+
+  if (error) throw error;
+
+  return {
+    files: files || [],
+    total: files?.length || 0,
+  };
+}
+
+export async function deleteMediaFile(path: string) {
+  const { supabase } = await checkAdmin();
+  const { error } = await supabase.storage.from("audio").remove([path]);
+  if (error) throw error;
+  revalidatePath("/admin/media");
+}
