@@ -12,7 +12,10 @@ export interface Database {
           avatar_url: string | null;
           grade: string | null;
           school: string | null;
-          role: "student" | "admin";
+          role: "student" | "admin" | "super_admin";
+          status: "active" | "suspended" | "banned";
+          last_login_at: string | null;
+          login_count: number;
           created_at: string;
           updated_at: string;
         };
@@ -24,7 +27,10 @@ export interface Database {
           avatar_url?: string | null;
           grade?: string | null;
           school?: string | null;
-          role?: "student" | "admin";
+          role?: "student" | "admin" | "super_admin";
+          status?: "active" | "suspended" | "banned";
+          last_login_at?: string | null;
+          login_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -36,7 +42,10 @@ export interface Database {
           avatar_url?: string | null;
           grade?: string | null;
           school?: string | null;
-          role?: "student" | "admin";
+          role?: "student" | "admin" | "super_admin";
+          status?: "active" | "suspended" | "banned";
+          last_login_at?: string | null;
+          login_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -276,6 +285,148 @@ export interface Database {
           speed?: number;
           completed?: boolean;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      // Admin panel tables
+      user_stats: {
+        Row: {
+          user_id: string;
+          total_learning_minutes: number;
+          total_lessons_completed: number;
+          total_audio_seconds: number;
+          streak_days: number;
+          last_activity_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          total_learning_minutes?: number;
+          total_lessons_completed?: number;
+          total_audio_seconds?: number;
+          streak_days?: number;
+          last_activity_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          total_learning_minutes?: number;
+          total_lessons_completed?: number;
+          total_audio_seconds?: number;
+          streak_days?: number;
+          last_activity_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      learning_records: {
+        Row: {
+          id: string;
+          user_id: string;
+          lesson_id: string;
+          played_seconds: number;
+          completed: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          lesson_id: string;
+          played_seconds?: number;
+          completed?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          lesson_id?: string;
+          played_seconds?: number;
+          completed?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      operation_logs: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          action: string;
+          module: string;
+          resource_type: string | null;
+          resource_id: string | null;
+          old_value: Json | null;
+          new_value: Json | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          action: string;
+          module: string;
+          resource_type?: string | null;
+          resource_id?: string | null;
+          old_value?: Json | null;
+          new_value?: Json | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          action?: string;
+          module?: string;
+          resource_type?: string | null;
+          resource_id?: string | null;
+          old_value?: Json | null;
+          new_value?: Json | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      audios: {
+        Row: {
+          id: string;
+          lesson_id: string;
+          title: string;
+          type: "main" | "listening" | "practice";
+          audio_url: string;
+          duration: number | null;
+          order_num: number;
+          is_default: boolean;
+          subtitle_text: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          lesson_id: string;
+          title: string;
+          type?: "main" | "listening" | "practice";
+          audio_url: string;
+          duration?: number | null;
+          order_num?: number;
+          is_default?: boolean;
+          subtitle_text?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          lesson_id?: string;
+          title?: string;
+          type?: "main" | "listening" | "practice";
+          audio_url?: string;
+          duration?: number | null;
+          order_num?: number;
+          is_default?: boolean;
+          subtitle_text?: Json | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
