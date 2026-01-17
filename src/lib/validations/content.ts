@@ -34,3 +34,39 @@ export const lessonSchema = z.object({
 });
 
 export type LessonFormData = z.infer<typeof lessonSchema>;
+
+// Admin panel schemas
+export const userUpdateSchema = z.object({
+  role: z.enum(["student", "admin", "super_admin"]).optional(),
+  status: z.enum(["active", "suspended", "banned"]).optional(),
+});
+
+export type UserUpdateData = z.infer<typeof userUpdateSchema>;
+
+export const audioSchema = z.object({
+  lesson_id: z.string().uuid(),
+  title: z.string().min(1, "Title is required"),
+  type: z.enum(["main", "listening", "practice"]).default("main"),
+  audio_url: z.string().min(1, "Audio URL is required"),
+  duration: z.number().int().min(0).optional(),
+  order_num: z.number().int().min(0).default(0),
+  is_default: z.boolean().default(false),
+  subtitle_text: z.any().optional(),
+});
+
+export type AudioFormData = z.infer<typeof audioSchema>;
+
+export const settingsSchema = z.object({
+  site_name: z.string().min(1, "Site name is required"),
+  logo_url: z.string().url().optional().or(z.literal("")),
+  allow_guest_access: z.boolean().default(false),
+  allow_registration: z.boolean().default(true),
+  default_playback_speed: z.number().min(0.5).max(2).default(1),
+  auto_play_next: z.boolean().default(false),
+  max_upload_size: z.number().int().min(1).max(100).default(50),
+  allowed_formats: z.string().default("mp3,wav,ogg"),
+  login_attempts: z.number().int().min(1).max(10).default(5),
+  captcha_enabled: z.boolean().default(false),
+});
+
+export type SettingsData = z.infer<typeof settingsSchema>;
