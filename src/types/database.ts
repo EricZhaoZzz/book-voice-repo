@@ -1,411 +1,514 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export interface Database {
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.1";
+  };
   public: {
     Tables: {
-      users: {
+      audios: {
         Row: {
-          id: string;
-          email: string | null;
-          phone: string | null;
-          username: string;
-          avatar_url: string | null;
-          grade: string | null;
-          school: string | null;
-          role: "student" | "admin" | "super_admin";
-          status: "active" | "suspended" | "banned";
-          last_login_at: string | null;
-          login_count: number;
-          wechat_openid: string | null;
-          wechat_unionid: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          email?: string | null;
-          phone?: string | null;
-          username: string;
-          avatar_url?: string | null;
-          grade?: string | null;
-          school?: string | null;
-          role?: "student" | "admin" | "super_admin";
-          status?: "active" | "suspended" | "banned";
-          last_login_at?: string | null;
-          login_count?: number;
-          wechat_openid?: string | null;
-          wechat_unionid?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          email?: string | null;
-          phone?: string | null;
-          username?: string;
-          avatar_url?: string | null;
-          grade?: string | null;
-          school?: string | null;
-          role?: "student" | "admin" | "super_admin";
-          status?: "active" | "suspended" | "banned";
-          last_login_at?: string | null;
-          login_count?: number;
-          wechat_openid?: string | null;
-          wechat_unionid?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      textbooks: {
-        Row: {
-          id: string;
-          name: string;
-          cover_url: string | null;
-          grade: string;
-          publisher: string;
-          version: string;
-          description: string | null;
-          is_free: boolean;
-          free_units_count: number;
-          created_by: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          cover_url?: string | null;
-          grade: string;
-          publisher: string;
-          version: string;
-          description?: string | null;
-          is_free?: boolean;
-          free_units_count?: number;
-          created_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          cover_url?: string | null;
-          grade?: string;
-          publisher?: string;
-          version?: string;
-          description?: string | null;
-          is_free?: boolean;
-          free_units_count?: number;
-          created_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      units: {
-        Row: {
-          id: string;
-          textbook_id: string;
-          name: string;
-          order_num: number;
-          description: string | null;
-          is_free: boolean;
-          requires_vip: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          textbook_id: string;
-          name: string;
-          order_num: number;
-          description?: string | null;
-          is_free?: boolean;
-          requires_vip?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          textbook_id?: string;
-          name?: string;
-          order_num?: number;
-          description?: string | null;
-          is_free?: boolean;
-          requires_vip?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      lessons: {
-        Row: {
-          id: string;
-          unit_id: string;
-          name: string;
-          order_num: number;
           audio_url: string;
-          audio_duration: number;
-          subtitle_text: Json | null;
-          qr_code_token: string;
-          qr_code_expires_at: string | null;
-          created_at: string;
-          updated_at: string;
+          created_at: string | null;
+          duration: number | null;
+          id: string;
+          is_default: boolean | null;
+          lesson_id: string;
+          order_num: number | null;
+          subtitle_text: string | null;
+          title: string;
+          type: string | null;
+          updated_at: string | null;
         };
         Insert: {
-          id?: string;
-          unit_id: string;
-          name: string;
-          order_num: number;
           audio_url: string;
-          audio_duration: number;
-          subtitle_text?: Json | null;
-          qr_code_token: string;
-          qr_code_expires_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string | null;
+          duration?: number | null;
+          id?: string;
+          is_default?: boolean | null;
+          lesson_id: string;
+          order_num?: number | null;
+          subtitle_text?: string | null;
+          title: string;
+          type?: string | null;
+          updated_at?: string | null;
         };
         Update: {
-          id?: string;
-          unit_id?: string;
-          name?: string;
-          order_num?: number;
           audio_url?: string;
-          audio_duration?: number;
-          subtitle_text?: Json | null;
-          qr_code_token?: string;
-          qr_code_expires_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string | null;
+          duration?: number | null;
+          id?: string;
+          is_default?: boolean | null;
+          lesson_id?: string;
+          order_num?: number | null;
+          subtitle_text?: string | null;
+          title?: string;
+          type?: string | null;
+          updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "audios_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       favorites: {
         Row: {
+          created_at: string | null;
           id: string;
-          user_id: string;
           lesson_id: string;
-          created_at: string;
+          user_id: string;
         };
         Insert: {
+          created_at?: string | null;
           id?: string;
-          user_id: string;
           lesson_id: string;
-          created_at?: string;
+          user_id: string;
         };
         Update: {
+          created_at?: string | null;
           id?: string;
-          user_id?: string;
           lesson_id?: string;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      play_history: {
-        Row: {
-          id: string;
-          user_id: string;
-          lesson_id: string;
-          last_position: number;
-          play_count: number;
-          total_duration: number;
-          last_played_at: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          lesson_id: string;
-          last_position?: number;
-          play_count?: number;
-          total_duration?: number;
-          last_played_at?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
           user_id?: string;
-          lesson_id?: string;
-          last_position?: number;
-          play_count?: number;
-          total_duration?: number;
-          last_played_at?: string;
-          created_at?: string;
-          updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "favorites_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       learning_stats: {
         Row: {
-          id: string;
-          user_id: string;
+          created_at: string | null;
           date: string;
-          total_duration: number;
-          lessons_completed: number;
-          created_at: string;
+          id: string;
+          lessons_completed: number | null;
+          total_duration: number | null;
+          user_id: string;
         };
         Insert: {
-          id?: string;
-          user_id: string;
+          created_at?: string | null;
           date: string;
-          total_duration?: number;
-          lessons_completed?: number;
-          created_at?: string;
+          id?: string;
+          lessons_completed?: number | null;
+          total_duration?: number | null;
+          user_id: string;
         };
         Update: {
-          id?: string;
-          user_id?: string;
+          created_at?: string | null;
           date?: string;
-          total_duration?: number;
-          lessons_completed?: number;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      play_logs: {
-        Row: {
-          id: string;
-          user_id: string | null;
-          lesson_id: string;
-          duration: number;
-          speed: number;
-          completed: boolean;
-          created_at: string;
-        };
-        Insert: {
           id?: string;
-          user_id?: string | null;
-          lesson_id: string;
-          duration: number;
-          speed?: number;
-          completed?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string | null;
-          lesson_id?: string;
-          duration?: number;
-          speed?: number;
-          completed?: boolean;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      // Admin panel tables
-      user_stats: {
-        Row: {
-          user_id: string;
-          total_learning_minutes: number;
-          total_lessons_completed: number;
-          total_audio_seconds: number;
-          streak_days: number;
-          last_activity_at: string | null;
-          updated_at: string;
-        };
-        Insert: {
-          user_id: string;
-          total_learning_minutes?: number;
-          total_lessons_completed?: number;
-          total_audio_seconds?: number;
-          streak_days?: number;
-          last_activity_at?: string | null;
-          updated_at?: string;
-        };
-        Update: {
+          lessons_completed?: number | null;
+          total_duration?: number | null;
           user_id?: string;
-          total_learning_minutes?: number;
-          total_lessons_completed?: number;
-          total_audio_seconds?: number;
-          streak_days?: number;
-          last_activity_at?: string | null;
-          updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "learning_stats_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lessons: {
+        Row: {
+          audio_duration: number;
+          audio_url: string;
+          created_at: string | null;
+          id: string;
+          name: string;
+          order_num: number;
+          qr_code_expires_at: string | null;
+          qr_code_token: string;
+          subtitle_text: Json | null;
+          unit_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          audio_duration: number;
+          audio_url: string;
+          created_at?: string | null;
+          id?: string;
+          name: string;
+          order_num: number;
+          qr_code_expires_at?: string | null;
+          qr_code_token: string;
+          subtitle_text?: Json | null;
+          unit_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          audio_duration?: number;
+          audio_url?: string;
+          created_at?: string | null;
+          id?: string;
+          name?: string;
+          order_num?: number;
+          qr_code_expires_at?: string | null;
+          qr_code_token?: string;
+          subtitle_text?: Json | null;
+          unit_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lessons_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       operation_logs: {
         Row: {
-          id: string;
-          user_id: string | null;
           action: string;
-          module: string;
-          resource_type: string | null;
-          resource_id: string | null;
-          old_value: Json | null;
-          new_value: Json | null;
+          created_at: string | null;
+          id: string;
           ip_address: string | null;
+          module: string;
+          new_value: Json | null;
+          old_value: Json | null;
+          resource_id: string | null;
+          resource_type: string | null;
           user_agent: string | null;
-          created_at: string;
+          user_id: string | null;
         };
         Insert: {
-          id?: string;
-          user_id?: string | null;
           action: string;
-          module: string;
-          resource_type?: string | null;
-          resource_id?: string | null;
-          old_value?: Json | null;
-          new_value?: Json | null;
+          created_at?: string | null;
+          id?: string;
           ip_address?: string | null;
+          module: string;
+          new_value?: Json | null;
+          old_value?: Json | null;
+          resource_id?: string | null;
+          resource_type?: string | null;
           user_agent?: string | null;
-          created_at?: string;
+          user_id?: string | null;
         };
         Update: {
-          id?: string;
-          user_id?: string | null;
           action?: string;
-          module?: string;
-          resource_type?: string | null;
-          resource_id?: string | null;
-          old_value?: Json | null;
-          new_value?: Json | null;
+          created_at?: string | null;
+          id?: string;
           ip_address?: string | null;
+          module?: string;
+          new_value?: Json | null;
+          old_value?: Json | null;
+          resource_id?: string | null;
+          resource_type?: string | null;
           user_agent?: string | null;
-          created_at?: string;
+          user_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "operation_logs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
-      audios: {
+      play_history: {
         Row: {
+          created_at: string | null;
+          id: string;
+          last_played_at: string | null;
+          last_position: number | null;
+          lesson_id: string;
+          play_count: number | null;
+          total_duration: number | null;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          last_played_at?: string | null;
+          last_position?: number | null;
+          lesson_id: string;
+          play_count?: number | null;
+          total_duration?: number | null;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          last_played_at?: string | null;
+          last_position?: number | null;
+          lesson_id?: string;
+          play_count?: number | null;
+          total_duration?: number | null;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "play_history_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "play_history_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      play_logs: {
+        Row: {
+          completed: boolean | null;
+          created_at: string | null;
+          duration: number;
           id: string;
           lesson_id: string;
-          title: string;
-          type: "main" | "listening" | "practice";
-          audio_url: string;
-          duration: number | null;
-          order_num: number;
-          is_default: boolean;
-          subtitle_text: Json | null;
-          created_at: string;
-          updated_at: string;
+          speed: number | null;
+          user_id: string | null;
         };
         Insert: {
+          completed?: boolean | null;
+          created_at?: string | null;
+          duration: number;
           id?: string;
           lesson_id: string;
-          title: string;
-          type?: "main" | "listening" | "practice";
-          audio_url: string;
-          duration?: number | null;
-          order_num?: number;
-          is_default?: boolean;
-          subtitle_text?: Json | null;
-          created_at?: string;
-          updated_at?: string;
+          speed?: number | null;
+          user_id?: string | null;
         };
         Update: {
+          completed?: boolean | null;
+          created_at?: string | null;
+          duration?: number;
           id?: string;
           lesson_id?: string;
-          title?: string;
-          type?: "main" | "listening" | "practice";
-          audio_url?: string;
-          duration?: number | null;
+          speed?: number | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "play_logs_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "play_logs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      textbooks: {
+        Row: {
+          cover_url: string | null;
+          created_at: string | null;
+          created_by: string | null;
+          description: string | null;
+          free_units_count: number | null;
+          grade: string;
+          id: string;
+          is_free: boolean | null;
+          name: string;
+          publisher: string;
+          updated_at: string | null;
+          version: string;
+        };
+        Insert: {
+          cover_url?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          description?: string | null;
+          free_units_count?: number | null;
+          grade: string;
+          id?: string;
+          is_free?: boolean | null;
+          name: string;
+          publisher: string;
+          updated_at?: string | null;
+          version: string;
+        };
+        Update: {
+          cover_url?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          description?: string | null;
+          free_units_count?: number | null;
+          grade?: string;
+          id?: string;
+          is_free?: boolean | null;
+          name?: string;
+          publisher?: string;
+          updated_at?: string | null;
+          version?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "textbooks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      units: {
+        Row: {
+          created_at: string | null;
+          description: string | null;
+          id: string;
+          is_free: boolean | null;
+          name: string;
+          order_num: number;
+          requires_vip: boolean | null;
+          textbook_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          is_free?: boolean | null;
+          name: string;
+          order_num: number;
+          requires_vip?: boolean | null;
+          textbook_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          is_free?: boolean | null;
+          name?: string;
           order_num?: number;
-          is_default?: boolean;
-          subtitle_text?: Json | null;
-          created_at?: string;
-          updated_at?: string;
+          requires_vip?: boolean | null;
+          textbook_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "units_textbook_id_fkey";
+            columns: ["textbook_id"];
+            isOneToOne: false;
+            referencedRelation: "textbooks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_stats: {
+        Row: {
+          last_activity_at: string | null;
+          streak_days: number | null;
+          total_audio_seconds: number | null;
+          total_learning_minutes: number | null;
+          total_lessons_completed: number | null;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          last_activity_at?: string | null;
+          streak_days?: number | null;
+          total_audio_seconds?: number | null;
+          total_learning_minutes?: number | null;
+          total_lessons_completed?: number | null;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          last_activity_at?: string | null;
+          streak_days?: number | null;
+          total_audio_seconds?: number | null;
+          total_learning_minutes?: number | null;
+          total_lessons_completed?: number | null;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      users: {
+        Row: {
+          avatar_url: string | null;
+          created_at: string | null;
+          email: string | null;
+          grade: string | null;
+          id: string;
+          last_login_at: string | null;
+          login_count: number | null;
+          phone: string | null;
+          role: string;
+          school: string | null;
+          status: string;
+          updated_at: string | null;
+          username: string;
+          wechat_openid: string | null;
+          wechat_unionid: string | null;
+        };
+        Insert: {
+          avatar_url?: string | null;
+          created_at?: string | null;
+          email?: string | null;
+          grade?: string | null;
+          id?: string;
+          last_login_at?: string | null;
+          login_count?: number | null;
+          phone?: string | null;
+          role?: string;
+          school?: string | null;
+          status?: string;
+          updated_at?: string | null;
+          username: string;
+          wechat_openid?: string | null;
+          wechat_unionid?: string | null;
+        };
+        Update: {
+          avatar_url?: string | null;
+          created_at?: string | null;
+          email?: string | null;
+          grade?: string | null;
+          id?: string;
+          last_login_at?: string | null;
+          login_count?: number | null;
+          phone?: string | null;
+          role?: string;
+          school?: string | null;
+          status?: string;
+          updated_at?: string | null;
+          username?: string;
+          wechat_openid?: string | null;
+          wechat_unionid?: string | null;
         };
         Relationships: [];
       };
@@ -423,4 +526,125 @@ export interface Database {
       [_ in never]: never;
     };
   };
+};
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
 }
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const;
