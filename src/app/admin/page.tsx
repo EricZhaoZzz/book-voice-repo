@@ -13,7 +13,7 @@ export default async function AdminPage() {
 
   const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
 
-  if (profile?.role !== "admin") {
+  if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
     redirect("/");
   }
 
