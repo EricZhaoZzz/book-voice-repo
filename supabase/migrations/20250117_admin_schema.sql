@@ -52,11 +52,11 @@ CREATE TABLE IF NOT EXISTS audios (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Users table extensions
-ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'super_admin'));
-ALTER TABLE users ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'banned'));
-ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS login_count INT DEFAULT 0;
+-- Users table extensions (columns already exist in 001_create_tables.sql)
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'student' CHECK (role IN ('student', 'admin', 'super_admin'));
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'banned'));
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ;
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS login_count INT DEFAULT 0;
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_user_stats_user_id ON user_stats(user_id);
@@ -66,8 +66,8 @@ CREATE INDEX IF NOT EXISTS idx_operation_logs_module ON operation_logs(module);
 CREATE INDEX IF NOT EXISTS idx_operation_logs_user ON operation_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_operation_logs_created ON operation_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audios_lesson ON audios(lesson_id);
-CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
+-- CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+-- CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
 
 -- RLS Policies
 ALTER TABLE user_stats ENABLE ROW LEVEL SECURITY;
