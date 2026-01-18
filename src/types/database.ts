@@ -325,33 +325,6 @@ export interface Database {
         };
         Relationships: [];
       };
-      learning_records: {
-        Row: {
-          id: string;
-          user_id: string;
-          lesson_id: string;
-          played_seconds: number;
-          completed: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          lesson_id: string;
-          played_seconds?: number;
-          completed?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          lesson_id?: string;
-          played_seconds?: number;
-          completed?: boolean;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
       operation_logs: {
         Row: {
           id: string;
