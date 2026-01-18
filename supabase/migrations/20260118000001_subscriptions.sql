@@ -11,7 +11,7 @@ CREATE TABLE subscriptions (
   payment_status TEXT DEFAULT 'pending'
     CHECK (payment_status IN ('pending', 'paid', 'overdue')),
   notes TEXT,
-  created_by UUID REFERENCES users(id),
+  created_by UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -25,7 +25,7 @@ CREATE TABLE classes (
   subscription_id UUID REFERENCES subscriptions(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   grade TEXT NOT NULL,
-  admin_id UUID REFERENCES users(id),
+  admin_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -37,7 +37,7 @@ CREATE INDEX idx_classes_admin_id ON classes(admin_id);
 CREATE TABLE class_students (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
-  student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   joined_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(class_id, student_id)
 );
