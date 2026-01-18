@@ -75,7 +75,9 @@ export function UserTable({ users, total }: UserTableProps) {
                   ? new Date(user.user_stats.last_activity_at).toLocaleDateString()
                   : "-"}
               </td>
-              <td className="p-3">{new Date(user.created_at).toLocaleDateString()}</td>
+              <td className="p-3">
+                {user.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
+              </td>
               <td className="p-3">
                 <a href={`/admin/users/${user.id}`} className="text-primary hover:underline">
                   View

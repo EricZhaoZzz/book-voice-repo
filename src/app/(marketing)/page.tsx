@@ -36,11 +36,11 @@ export default function LandingPage() {
             </a>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-slate-600 hover:text-teal-600 transition-colors">
+            <Link href="/auth" className="text-slate-600 hover:text-teal-600 transition-colors">
               登录
             </Link>
             <Link
-              href="/register"
+              href="/auth"
               className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer"
             >
               立即开始
@@ -70,7 +70,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/register"
+                  href="/auth"
                   className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl cursor-pointer"
                 >
                   <Play className="w-5 h-5" />
@@ -318,7 +318,7 @@ export default function LandingPage() {
               加入数千名正在使用 Book Voice 学习的学生。 今天就免费开始吧。
             </p>
             <Link
-              href="/register"
+              href="/auth"
               className="inline-flex items-center justify-center gap-2 bg-white text-teal-600 px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-teal-50 transition-colors shadow-lg cursor-pointer"
             >
               <Play className="w-5 h-5" />

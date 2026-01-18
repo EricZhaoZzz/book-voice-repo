@@ -57,7 +57,7 @@ export class AuthService {
       .from("users")
       .update({
         last_login_at: new Date().toISOString(),
-        login_count: userProfile.login_count + 1,
+        login_count: (userProfile.login_count ?? 0) + 1,
       })
       .eq("id", data.user.id);
 
@@ -149,7 +149,7 @@ export class AuthService {
         .from("users")
         .update({
           last_login_at: new Date().toISOString(),
-          login_count: existingUser.login_count + 1,
+          login_count: (existingUser.login_count ?? 0) + 1,
           ...(unionid && { wechat_unionid: unionid }),
         })
         .eq("id", userId);

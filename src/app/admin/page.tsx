@@ -8,7 +8,7 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/auth");
   }
 
   const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();

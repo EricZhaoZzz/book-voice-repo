@@ -57,7 +57,12 @@ export function UnitForm({ textbookId, unit }: { textbookId: string; unit?: Unit
       </div>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="is_free" name="is_free" defaultChecked={unit?.is_free} />
+          <input
+            type="checkbox"
+            id="is_free"
+            name="is_free"
+            defaultChecked={unit?.is_free ?? true}
+          />
           <Label htmlFor="is_free">Free</Label>
         </div>
         <div className="flex items-center gap-2">
@@ -65,7 +70,7 @@ export function UnitForm({ textbookId, unit }: { textbookId: string; unit?: Unit
             type="checkbox"
             id="requires_vip"
             name="requires_vip"
-            defaultChecked={unit?.requires_vip}
+            defaultChecked={unit?.requires_vip ?? false}
           />
           <Label htmlFor="requires_vip">Requires VIP</Label>
         </div>

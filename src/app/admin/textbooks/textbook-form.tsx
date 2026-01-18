@@ -60,7 +60,12 @@ export function TextbookForm({ textbook }: { textbook?: Textbook }) {
         <Input id="description" name="description" defaultValue={textbook?.description || ""} />
       </div>
       <div className="flex items-center gap-2">
-        <input type="checkbox" id="is_free" name="is_free" defaultChecked={textbook?.is_free} />
+        <input
+          type="checkbox"
+          id="is_free"
+          name="is_free"
+          defaultChecked={textbook?.is_free ?? true}
+        />
         <Label htmlFor="is_free">免费</Label>
       </div>
       <div>

@@ -211,7 +211,7 @@ export class UserService {
         .from("play_history")
         .update({
           last_position: position,
-          play_count: existing.play_count + 1,
+          play_count: (existing.play_count ?? 0) + 1,
           last_played_at: new Date().toISOString(),
         })
         .eq("id", existing.id)
@@ -264,8 +264,8 @@ export class UserService {
 
     const dailyStats = (stats || []).map((s) => ({
       date: s.date,
-      totalDuration: s.total_duration,
-      lessonsCompleted: s.lessons_completed,
+      totalDuration: s.total_duration ?? 0,
+      lessonsCompleted: s.lessons_completed ?? 0,
     }));
 
     const totalDuration = dailyStats.reduce((sum, s) => sum + s.totalDuration, 0);

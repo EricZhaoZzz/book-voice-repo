@@ -84,7 +84,9 @@ export function UserDetails({ user }: UserDetailsProps) {
           </div>
           <div>
             <label className="text-sm text-muted-foreground">Registered</label>
-            <p className="font-medium">{new Date(user.created_at).toLocaleString()}</p>
+            <p className="font-medium">
+              {user.created_at ? new Date(user.created_at).toLocaleString() : "N/A"}
+            </p>
           </div>
           <div>
             <label className="text-sm text-muted-foreground">Last Login</label>
