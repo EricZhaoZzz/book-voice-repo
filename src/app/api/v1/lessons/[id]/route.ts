@@ -5,7 +5,7 @@ import { success, errors } from "@/lib/api/response";
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const lesson = await LessonService.getLessonById(id);
+    const lesson = await LessonService.getLessonWithFullPath(id);
     return success(lesson);
   } catch (error) {
     if (error instanceof Error) {
