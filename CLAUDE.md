@@ -41,12 +41,18 @@ Book Voice is an English listening audio platform for K-12 students, built with 
 ## Commands
 
 ```bash
-npm run dev       # Start development server (localhost:3000)
-npm run build     # Build for production
-npm run start     # Start production server
-npm run lint      # Run ESLint with auto-fix
-npm run format    # Format with Prettier
-npm run prepare   # Install Husky git hooks
+npm run dev            # Start development server (localhost:3000)
+npm run build          # Build for production
+npm run start          # Start production server
+npm run lint           # Run ESLint with auto-fix
+npm run format         # Format with Prettier
+npm run prepare        # Install Husky git hooks
+npm run test           # Run unit tests (watch mode)
+npm run test:run       # Run unit tests once
+npm run test:coverage  # Run tests with coverage report
+npm run test:ui        # Run tests with Vitest UI
+npm run test:e2e       # Run Playwright E2E tests
+npm run test:e2e:ui    # Run E2E tests with Playwright UI
 ```
 
 **Pre-commit Hooks:** Husky + lint-staged automatically runs ESLint and Prettier on staged files before each commit.
