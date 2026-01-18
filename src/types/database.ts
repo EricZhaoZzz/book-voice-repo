@@ -56,6 +56,87 @@ export type Database = {
           },
         ];
       };
+      class_students: {
+        Row: {
+          class_id: string;
+          id: string;
+          joined_at: string | null;
+          student_id: string;
+        };
+        Insert: {
+          class_id: string;
+          id?: string;
+          joined_at?: string | null;
+          student_id: string;
+        };
+        Update: {
+          class_id?: string;
+          id?: string;
+          joined_at?: string | null;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_students_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "class_students_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      classes: {
+        Row: {
+          admin_id: string | null;
+          created_at: string | null;
+          grade: string;
+          id: string;
+          name: string;
+          subscription_id: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          admin_id?: string | null;
+          created_at?: string | null;
+          grade: string;
+          id?: string;
+          name: string;
+          subscription_id?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          admin_id?: string | null;
+          created_at?: string | null;
+          grade?: string;
+          id?: string;
+          name?: string;
+          subscription_id?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "classes_admin_id_fkey";
+            columns: ["admin_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "classes_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       favorites: {
         Row: {
           created_at: string | null;
@@ -323,6 +404,59 @@ export type Database = {
           },
         ];
       };
+      subscriptions: {
+        Row: {
+          created_at: string | null;
+          created_by: string | null;
+          end_date: string;
+          id: string;
+          notes: string | null;
+          payment_status: string | null;
+          school_contact: string | null;
+          school_name: string;
+          start_date: string;
+          status: string;
+          student_count: number | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          created_by?: string | null;
+          end_date: string;
+          id?: string;
+          notes?: string | null;
+          payment_status?: string | null;
+          school_contact?: string | null;
+          school_name: string;
+          start_date: string;
+          status?: string;
+          student_count?: number | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          created_by?: string | null;
+          end_date?: string;
+          id?: string;
+          notes?: string | null;
+          payment_status?: string | null;
+          school_contact?: string | null;
+          school_name?: string;
+          start_date?: string;
+          status?: string;
+          student_count?: number | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       textbooks: {
         Row: {
           cover_url: string | null;
@@ -471,6 +605,8 @@ export type Database = {
           role: string;
           school: string | null;
           status: string;
+          student_id: string | null;
+          subscription_id: string | null;
           updated_at: string | null;
           username: string;
           wechat_openid: string | null;
@@ -488,6 +624,8 @@ export type Database = {
           role?: string;
           school?: string | null;
           status?: string;
+          student_id?: string | null;
+          subscription_id?: string | null;
           updated_at?: string | null;
           username: string;
           wechat_openid?: string | null;
@@ -505,12 +643,22 @@ export type Database = {
           role?: string;
           school?: string | null;
           status?: string;
+          student_id?: string | null;
+          subscription_id?: string | null;
           updated_at?: string | null;
           username?: string;
           wechat_openid?: string | null;
           wechat_unionid?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "users_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
