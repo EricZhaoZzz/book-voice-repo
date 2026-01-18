@@ -1,44 +1,41 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("请输入有效的邮箱地址"),
+  password: z.string().min(1, "请输入密码"),
 });
 
 export const registerSchema = z
   .object({
-    username: z
-      .string()
-      .min(2, "Username must be at least 2 characters")
-      .max(50, "Username must be less than 50 characters"),
-    email: z.string().email("Please enter a valid email address"),
+    username: z.string().min(2, "用户名至少需要2个字符").max(50, "用户名不能超过50个字符"),
+    email: z.string().email("请输入有效的邮箱地址"),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters")
-      .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+      .min(6, "密码至少需要6个字符")
+      .regex(/[a-zA-Z]/, "密码必须包含至少一个字母")
+      .regex(/[0-9]/, "密码必须包含至少一个数字"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "两次输入的密码不一致",
     path: ["confirmPassword"],
   });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("请输入有效的邮箱地址"),
 });
 
 export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters")
-      .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+      .min(6, "密码至少需要6个字符")
+      .regex(/[a-zA-Z]/, "密码必须包含至少一个字母")
+      .regex(/[0-9]/, "密码必须包含至少一个数字"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "两次输入的密码不一致",
     path: ["confirmPassword"],
   });
 

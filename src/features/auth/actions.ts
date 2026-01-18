@@ -92,9 +92,9 @@ export async function requestPasswordReset(
 const passwordSchema = z.object({
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    .min(6, "密码至少需要6个字符")
+    .regex(/[a-zA-Z]/, "密码必须包含至少一个字母")
+    .regex(/[0-9]/, "密码必须包含至少一个数字"),
 });
 
 export async function resetPassword(
